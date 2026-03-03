@@ -1,0 +1,23 @@
+.layer-controls {
+  display: grid;
+  gap: 12px;
+}
+
+.layer-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 18px;
+}
+
+.layer-button.is-active {
+  border-color: rgba(118, 240, 211, 0.72);
+  background: linear-gradient(135deg, rgba(18, 88, 95, 0.7), rgba(9, 32, 43, 0.92));
+}
+
+.layer-button__meta {
+  color: var(--muted);
+  font-size: 0.92rem;
+}

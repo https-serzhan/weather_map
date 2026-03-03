@@ -1,0 +1,61 @@
+.map-stage {
+  position: relative;
+  min-height: 100vh;
+}
+
+.map-canvas {
+  width: 100%;
+  height: 100vh;
+}
+
+.map-overlay {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  max-width: min(520px, calc(100vw - 48px));
+  padding: 24px;
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(3, 16, 24, 0.72), rgba(4, 20, 30, 0.4));
+  border: 1px solid rgba(118, 240, 211, 0.12);
+  backdrop-filter: blur(16px);
+  box-shadow: var(--shadow);
+  pointer-events: none;
+}
+
+.map-overlay h1 {
+  margin: 0 0 12px;
+  font-size: clamp(2rem, 4vw, 3.75rem);
+  line-height: 0.96;
+  letter-spacing: -0.04em;
+}
+
+.map-overlay__hint {
+  margin: 0;
+  max-width: 46ch;
+  color: var(--muted);
+}
+
+.sidebar-toggle {
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+  z-index: 20;
+  padding: 14px 18px;
+  border-radius: 999px;
+  backdrop-filter: blur(14px);
+}
+
+@media (max-width: 900px) {
+  .map-overlay {
+    top: 16px;
+    left: 16px;
+    right: 16px;
+    max-width: none;
+    padding: 18px;
+  }
+
+  .sidebar-toggle {
+    left: 16px;
+    bottom: 16px;
+  }
+}
