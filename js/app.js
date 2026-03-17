@@ -22,9 +22,7 @@ async function bootstrap() {
   try {
     await initMap("map");
   } catch (error) {
-    renderError(
-      `${error.message} Replace YOUR_YANDEX_MAPS_API_KEY in index.html and js/config.js before loading the app.`
-    );
+    renderError(`${error.message} Check the Yandex Maps API key and script loading.`);
     return;
   }
 

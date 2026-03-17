@@ -7,7 +7,7 @@ function getTemplate(key) {
   const template = CONFIG.weatherTileUrls[key];
 
   if (!template || !CONFIG.openWeatherMapApiKey || CONFIG.openWeatherMapApiKey.includes("YOUR_")) {
-    throw new Error("OpenWeatherMap API key is missing in js/config.js");
+    throw new Error("OpenWeatherMap API key is missing in js/api-config.js");
   }
 
   return template.replace("%apiKey%", CONFIG.openWeatherMapApiKey);
