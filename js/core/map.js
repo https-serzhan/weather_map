@@ -1,13 +1,16 @@
-import { CONFIG } from "../config.js";
-
-let mapInstance;
-let markerInstance;
-const locationCallbacks = [];
+let map = null;
+let currentMarker = null;
 const tileLayers = new Map();
 
 function assertYandexMaps() {
   if (!window.ymaps) {
     throw new Error("Yandex Maps JS API is not available.");
+  }
+}
+
+function ensureMapReady() {
+  if (!map) {
+    throw new Error("Map is not initialized.");
   }
 }
 
@@ -18,81 +21,104 @@ function createLayerFromTemplate(template) {
   });
 }
 
-function ensureMapReady() {
-  if (!mapInstance) {
-    throw new Error("Map is not initialized.");
+function notifyLocationSelected(coords) {
+  if (typeof window.onLocationSelected === "function") {
+    window.onLocationSelected({
+      lat: coords[0],
+      lon: coords[1],
+    });
   }
 }
 
-export async function initMap(containerId) {
-  assertYandexMaps();
+function handleMapClick(e) {
+  const coords = e.get("coords");
 
-  await new Promise((resolve) => window.ymaps.ready(resolve));
+  console.log("Map click:", coords);
+  addMarker(coords[0], coords[1]);
+  notifyLocationSelected(coords);
+}
 
-  mapInstance = new window.ymaps.Map(
+function createMap(containerId = "map") {
+  if (map) {
+    return map;
+  }
+
+  const container = document.getElementById(containerId);
+
+  if (!container) {
+    throw new Error(`Map container with id "${containerId}" was not found.`);
+  }
+
+  map = new window.ymaps.Map(
     containerId,
     {
-      center: CONFIG.defaultView.center,
-      zoom: CONFIG.defaultView.zoom,
-      controls: ["zoomControl", "typeSelector"],
+      center: [20, 0],
+      zoom: 2,
+      controls: ["zoomControl"],
     },
     {
       suppressMapOpenBlock: true,
     }
   );
 
-  mapInstance.events.add("click", (event) => {
-    const [lat, lon] = event.get("coords");
-    addMarker(lat, lon);
-    locationCallbacks.forEach((callback) => callback({ lat, lon }));
+  map.events.add("click", function (e) {
+    handleMapClick(e);
   });
 
-  return mapInstance;
+  return map;
+}
+
+export function initMap(containerId = "map") {
+  assertYandexMaps();
+
+  if (map) {
+    return Promise.resolve(map);
+  }
+
+  return new Promise((resolve) => {
+    window.ymaps.ready(function () {
+      resolve(createMap(containerId));
+    });
+  });
 }
 
 export function addMarker(lat, lon) {
   ensureMapReady();
 
-  if (markerInstance) {
-    mapInstance.geoObjects.remove(markerInstance);
+  const coords = [lat, lon];
+
+  if (currentMarker) {
+    map.geoObjects.remove(currentMarker);
   }
 
-  markerInstance = new window.ymaps.Placemark(
-    [lat, lon],
-    {},
-    {
-      preset: "islands#nightCircleDotIcon",
-    }
-  );
-
-  mapInstance.geoObjects.add(markerInstance);
-  mapInstance.setCenter([lat, lon], Math.max(mapInstance.getZoom(), 5), {
-    duration: 240,
-  });
+  currentMarker = new window.ymaps.Placemark(coords);
+  map.geoObjects.add(currentMarker);
 }
 
 export function onLocationSelected(callback) {
-  locationCallbacks.push(callback);
+  window.onLocationSelected = callback;
 }
 
 export function addTileLayer(layerName, template) {
   ensureMapReady();
 
   if (tileLayers.has(layerName)) {
-    mapInstance.setType(tileLayers.get(layerName));
+    map.setType(tileLayers.get(layerName));
     return;
   }
 
   const layer = createLayerFromTemplate(template);
   const mapTypeName = `custom#${layerName}`;
 
-  window.ymaps.layer.storage.add(mapTypeName, () => layer);
+  window.ymaps.layer.storage.add(mapTypeName, function () {
+    return layer;
+  });
   window.ymaps.mapType.storage.add(
     mapTypeName,
     new window.ymaps.MapType(mapTypeName, [layer, "yandex#map"])
   );
 
-  mapInstance.setType(mapTypeName);
+  map.setType(mapTypeName);
   tileLayers.set(layerName, mapTypeName);
 }
 
@@ -104,9 +130,19 @@ export function removeTileLayer(layerName) {
   }
 
   tileLayers.delete(layerName);
-  mapInstance.setType("yandex#map");
+  map.setType("yandex#map");
 }
 
 export function getMapInstance() {
-  return mapInstance;
+  return map;
+}
+
+window.MapModule = {
+  initMap,
+};
+
+if (window.ymaps) {
+  window.ymaps.ready(function () {
+    createMap("map");
+  });
 }

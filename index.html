@@ -15,11 +15,37 @@
     <link rel="stylesheet" href="./css/sidebar.css" />
     <link rel="stylesheet" href="./css/layers.css" />
     <link rel="stylesheet" href="./css/widgets.css" />
-    <script
-      src="https://api-maps.yandex.ru/2.1/?apikey=YOUR_YANDEX_MAPS_API_KEY&lang=en_US"
-      defer
-    ></script>
-    <script type="module" src="./js/app.js"></script>
+    <script type="module">
+      import { CONFIG } from "./js/config.js";
+
+      function loadYandexMaps() {
+        return new Promise((resolve, reject) => {
+          const script = document.createElement("script");
+          const url = new URL("https://api-maps.yandex.ru/2.1/");
+
+          url.searchParams.set("apikey", CONFIG.yandexMapsApiKey);
+          url.searchParams.set("lang", "en_US");
+
+          script.src = url.toString();
+          script.type = "text/javascript";
+          script.addEventListener("load", resolve, { once: true });
+          script.addEventListener(
+            "error",
+            () => reject(new Error("Failed to load Yandex Maps JS API.")),
+            { once: true }
+          );
+
+          document.head.append(script);
+        });
+      }
+
+      try {
+        await loadYandexMaps();
+        await import("./js/app.js");
+      } catch (error) {
+        console.error(error);
+      }
+    </script>
   </head>
   <body>
     <div class="app-shell">

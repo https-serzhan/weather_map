@@ -29,8 +29,8 @@ Vanilla JS weather map MVP with a fullscreen world map, click-to-load weather, w
 
 ## Setup
 
-1. Replace `YOUR_YANDEX_MAPS_API_KEY` in `index.html` and `js/config.js`.
-2. Replace `YOUR_OPENWEATHERMAP_API_KEY` in `js/config.js`.
+1. Open `js/api-config.js`.
+2. Replace `YOUR_YANDEX_MAPS_API_KEY` and `YOUR_OPENWEATHERMAP_API_KEY`.
 3. Start a static server from the project root, for example:
 
 ```bash
