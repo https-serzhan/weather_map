@@ -1,23 +1,68 @@
-.layer-controls {
-  display: grid;
-  gap: 12px;
+/* css/layers.css */
+
+.weather-legend {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  z-index: 500; /* Чтобы быть поверх карты Яндекса */
+  background: rgba(20, 20, 22, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 16px;
+  border-radius: 8px;
+  color: #fff;
+  font-family: "Space Grotesk", sans-serif;
+  width: 250px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  display: none;
+  pointer-events: none; /* Клики проходят сквозь легенду на карту */
+} 
+
+.legend-title {
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #a0a0a8;
 }
 
-.layer-button {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.legend-scale {
+  height: 8px;
   width: 100%;
-  padding: 14px 16px;
-  border-radius: 18px;
+  border-radius: 4px;
+  margin-bottom: 4px;
 }
 
-.layer-button.is-active {
-  border-color: rgba(118, 240, 211, 0.72);
-  background: linear-gradient(135deg, rgba(18, 88, 95, 0.7), rgba(9, 32, 43, 0.92));
+/* Градиент температуры (от фиолетового/синего к красному/бордовому) */
+.temp-scale {
+  background: linear-gradient(
+    to right,
+    #821692,
+    #0010d5,
+    #00bfff,
+    #00ff00,
+    #ffff00,
+    #ffa500,
+    #ff0000,
+    #800000
+  );
 }
 
-.layer-button__meta {
-  color: var(--muted);
-  font-size: 0.92rem;
+/* Градиент ветра (от прозрачного/зеленого к фиолетовому) */
+.wind-scale {
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0),
+    #00ff00,
+    #ffff00,
+    #ff0000,
+    #821692
+  );
+}
+
+.legend-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-family: "IBM Plex Mono", monospace;
+  color: #d0d0d5;
 }
