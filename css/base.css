@@ -26,8 +26,16 @@ body {
   font-family: "Space Grotesk", sans-serif;
   color: var(--text);
   background:
-    radial-gradient(circle at top left, rgba(19, 114, 125, 0.3), transparent 30%),
-    radial-gradient(circle at top right, rgba(0, 82, 163, 0.22), transparent 35%),
+    radial-gradient(
+      circle at top left,
+      rgba(19, 114, 125, 0.3),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at top right,
+      rgba(0, 82, 163, 0.22),
+      transparent 35%
+    ),
     linear-gradient(135deg, #04111b 0%, #061a27 45%, #020a10 100%);
 }
 
@@ -60,17 +68,26 @@ button {
   padding: 20px;
   border: 1px solid var(--panel-border);
   border-radius: 22px;
-  background: linear-gradient(180deg, rgba(8, 28, 42, 0.82), rgba(6, 18, 28, 0.66));
+  background: linear-gradient(
+    180deg,
+    rgba(8, 28, 42, 0.82),
+    rgba(6, 18, 28, 0.66)
+  );
   box-shadow: var(--shadow);
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 .panel::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(118, 240, 211, 0.08), transparent 45%);
+  background: linear-gradient(
+    135deg,
+    rgba(118, 240, 211, 0.08),
+    transparent 45%
+  );
   pointer-events: none;
+  border-radius: inherit;
 }
 
 .panel__heading,
