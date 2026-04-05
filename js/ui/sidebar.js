@@ -30,16 +30,8 @@ export function renderWeather(data) {
           <span class="panel__label">Wind</span>
           <strong>${data.windSpeed} km/h</strong>
         </div>
-        <div class="metric">
-          <span class="panel__label">Code</span>
-          <strong>${data.weatherCode}</strong>
-        </div>
-        <div class="metric">
-          <span class="panel__label">Condition</span>
-          <strong>${data.description}</strong>
-        </div>
       </div>
-    `
+    `,
   );
 }
 
