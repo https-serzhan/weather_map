@@ -58,12 +58,14 @@ function createMap(containerId = "map") {
     },
     {
       suppressMapOpenBlock: true,
-    }
+    },
   );
 
   map.events.add("click", function (e) {
     handleMapClick(e);
   });
+
+  window.map = map;
 
   return map;
 }
@@ -115,7 +117,7 @@ export function addTileLayer(layerName, template) {
   });
   window.ymaps.mapType.storage.add(
     mapTypeName,
-    new window.ymaps.MapType(mapTypeName, [layer, "yandex#map"])
+    new window.ymaps.MapType(mapTypeName, [layer, "yandex#map"]),
   );
 
   map.setType(mapTypeName);
