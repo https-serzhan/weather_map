@@ -2,13 +2,15 @@ import { fetchJSON } from "../utils/api.js";
 import { describeWeatherCode } from "../utils/format.js";
 
 export async function getCurrentWeather(lat, lon) {
-  const url = new URL("https://api.open-meteo.com/v1/forecast");
-  url.searchParams.set("latitude", lat);
-  url.searchParams.set("longitude", lon);
-  url.searchParams.set("current_weather", "true");
+  const url = new URL("https://api.openweathermap.org/data/2.5/weather");
+
+  url.searchParams.set("lat", lat);
+  url.searchParams.set("lon", lon);
+  url.searchParams.set("appid", "5bcecb727a605c8c9f42480e012392a8");
 
   try {
     const data = await fetchJSON(url.toString());
+    console.log(data);
     const current = data.current_weather;
 
     if (!current) {
