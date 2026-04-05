@@ -1,6 +1,6 @@
 export const CONFIG = {
-  yandexMapsApiKey: "d6495f04-73df-4d68-b319-31a18776e9f2",
-  openWeatherMapApiKey: "c6005872ccdeb15a3c2b2276e57c93a3",
+  yandexMapsApiKey: "YOUR_OPENWEATHERMAP_API_KEY",
+  openWeatherMapApiKey: "YOUR_OPENWEATHERMAP_API_KEY",
   defaultView: {
     center: [20, 0],
     zoom: 2,
