@@ -18,8 +18,8 @@ export function renderLocation({ title, subtitle, coordinates }) {
 // <p class="panel__muted">${coordinates}</p>
 
 export function renderWeather(data) {
-  console.log('123', data);
-  
+  console.log("123", data);
+
   locationCardElement.insertAdjacentHTML(
     "beforeend",
     `
@@ -30,7 +30,7 @@ export function renderWeather(data) {
         </div>
         <div class="metric">
           <span class="panel__label">Country</span>
-          <strong>${data?.country ?? '¯\\\_(ツ)_/¯'}</strong>
+          <strong>${data?.country ?? "¯\\\_(ツ)_/¯"}</strong>
         </div>
         <div class="metric">
           <span class="panel__label">Temperature</span>
@@ -42,11 +42,11 @@ export function renderWeather(data) {
         </div>
         <div class="metric">
           <span class="panel__label">Description</span>
-          <strong>${data}</strong>
+          <strong>${data.description ?? "¯\\\_(ツ)_/¯"}</strong>
         </div>
         <div class="metric">
           <span class="panel__label">Code</span>
-          <strong>${data.cod}</strong>
+          <strong>${data.weatherCode}</strong>
         </div>
       </div>
     `,

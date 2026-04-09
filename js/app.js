@@ -59,7 +59,6 @@ async function bootstrap() {
         // coordinates: `${formatCoordinate(lat, "lat")} · ${formatCoordinate(lon, "lon")}`,
       });
       console.log("погода", weather);
-      console.log("место", place);
       renderWeather(weather);
     } catch (error) {
       renderError(error.message);
