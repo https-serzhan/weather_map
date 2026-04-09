@@ -13,22 +13,40 @@ export function renderLocation({ title, subtitle, coordinates }) {
   locationCardElement.innerHTML = `
     <p class="panel__label">${title}</p>
     <h3>${subtitle}</h3>
-    <p class="panel__muted">${coordinates}</p>
   `;
 }
+// <p class="panel__muted">${coordinates}</p>
 
 export function renderWeather(data) {
+  console.log('123', data);
+  
   locationCardElement.insertAdjacentHTML(
     "beforeend",
     `
       <div class="weather-card__metrics">
+        <div class="metric">
+          <span class="panel__label">City</span>
+          <strong>${data.name || "¯\\\_(ツ)_/¯"}</strong>
+        </div>
+        <div class="metric">
+          <span class="panel__label">Country</span>
+          <strong>${data?.country ?? '¯\\\_(ツ)_/¯'}</strong>
+        </div>
         <div class="metric">
           <span class="panel__label">Temperature</span>
           <strong>${data.temperature}°C</strong>
         </div>
         <div class="metric">
           <span class="panel__label">Wind</span>
-          <strong>${data.windSpeed} km/h</strong>
+          <strong>${data.windSpeed.toFixed(1)} m/s</strong>
+        </div>
+        <div class="metric">
+          <span class="panel__label">Description</span>
+          <strong>${data}</strong>
+        </div>
+        <div class="metric">
+          <span class="panel__label">Code</span>
+          <strong>${data.cod}</strong>
         </div>
       </div>
     `,

@@ -58,6 +58,8 @@ function createMap(containerId = "map") {
     },
     {
       suppressMapOpenBlock: true,
+      maxZoom: 15,
+      minZoom: 3,
     },
   );
 

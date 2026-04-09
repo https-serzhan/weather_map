@@ -11,6 +11,9 @@ export async function getCurrentWeather(lat, lon) {
   try {
     const data = await fetchJSON(url.toString());
     console.log(data); // Чекаем, что выдает
+    console.log(data.name);
+    console.log(data.sys.country);
+
     const current = data.weather;
 
     if (!current) {
@@ -20,8 +23,10 @@ export async function getCurrentWeather(lat, lon) {
     return {
       temperature: Math.round(((data.main.temp - 273.15) * 100) / 100),
       windSpeed: data.wind.speed,
-      // weatherCode: current.weathercode,
-      // description: describeWeatherCode(current.weathercode),
+      name: data.name,
+      country: data.sys.country,
+      weatherCode: data.weathercode,
+      description: describeWeatherCode(current.weathercode),
     };
   } catch (error) {
     throw new Error(`Unable to load weather data. ${error.message}`);
