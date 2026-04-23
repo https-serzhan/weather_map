@@ -1,6 +1,14 @@
 # Global Interactive Weather Map
 
-Vanilla JS weather map MVP with a fullscreen world map, click-to-load weather, weather tile overlays, a sliding sidebar, and a browser-side currency converter.
+Frontend-only weather map built with vanilla JavaScript and the Yandex Maps JS API.
+
+## What It Does
+
+- Renders a fullscreen interactive world map
+- Lets users click anywhere to inspect current weather
+- Resolves clicked coordinates into human-readable locations with Yandex geocoding
+- Overlays OpenWeatherMap temperature and wind tiles
+- Includes a browser-side currency converter backed by Frankfurter
 
 ## Stack
 
@@ -8,46 +16,34 @@ Vanilla JS weather map MVP with a fullscreen world map, click-to-load weather, w
 - CSS3
 - Vanilla JavaScript (ES modules)
 - Yandex Maps JS API
-- Open-Meteo API
-- OpenWeatherMap Tile API
-- exchangerate.host API
+- OpenWeatherMap Current Weather API
+- OpenWeatherMap Weather Tiles API
+- Frankfurter currency API
 
-## Structure
+## Run Locally
 
-```text
-.
-├── index.html
-├── css/
-├── js/
-│   ├── app.js
-│   ├── config.js
-│   ├── core/
-│   ├── ui/
-│   └── utils/
-└── README.md
-```
-
-## Setup
-
-1. Open `js/api-config.js`.
-2. Replace `YOUR_YANDEX_MAPS_API_KEY` and `YOUR_OPENWEATHERMAP_API_KEY`.
-3. Start a static server from the project root, for example:
+1. Start a static server from the project root:
 
 ```bash
 python3 -m http.server 4173
 ```
 
-4. Open `http://localhost:4173`.
+2. Open `http://localhost:4173`.
 
-## MVP Features
+## Configuration
 
-- Fullscreen world map
-- Click any point to fetch current weather
-- Sidebar with location and weather details
-- Temperature and wind tile layer toggles
-- Currency converter widget
+API settings live in `js/config.js`.
+
+Current frontend configuration expects:
+
+- `yandexMapsApiKey`
+- `openWeatherMapApiKey`
+- `openWeatherMapTilesApiKey`
+
+This project is intentionally frontend-only, so any API key used here is visible in the browser. For production use, protect sensitive APIs behind a backend proxy and apply domain/referrer restrictions wherever the provider supports them.
 
 ## Notes
 
-- `geocode.js` currently returns coordinate-based labels. Reverse geocoding can be added as the next step.
-- Weather tile overlays require a valid OpenWeatherMap key.
+- The currency widget uses Frankfurter because it works client-side without an API key.
+- OpenWeatherMap is used both for current weather data and weather tile overlays.
+- If you want stricter key separation later, `openWeatherMapApiKey` and `openWeatherMapTilesApiKey` are already split in config.

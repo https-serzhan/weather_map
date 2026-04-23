@@ -1,114 +1,94 @@
 import { CONFIG } from "../config.js";
-import { addTileLayer, removeTileLayer } from "./map.js";
+import { clearActiveTileLayer, setActiveTileLayer } from "./map.js";
 
 const activeLayers = new Set();
 
-function getTemplate(key) {
-  const template = CONFIG.weatherTileUrls[key];
-
-  if (
-    !template ||
-    !CONFIG.openWeatherMapApiKey ||
-    CONFIG.openWeatherMapApiKey.includes("YOUR_")
-  ) {
-    console.warn("Внимание: Проверьте API-ключ OpenWeatherMap в config.js");
-    return null;
-  }
-
-  return template.replace("%apiKey%", CONFIG.openWeatherMapApiKey);
+function resolveTilesApiKey() {
+  return CONFIG.openWeatherMapTilesApiKey || CONFIG.openWeatherMapApiKey;
 }
 
-export function toggleLayer(name) {
-  if (activeLayers.has(name)) {
-    removeLayer(name);
+function getTemplate(layerName) {
+  const template = CONFIG.weatherTileUrls[layerName];
+  const apiKey = resolveTilesApiKey();
+
+  if (!template) {
+    throw new Error(`Unknown weather layer: ${layerName}`);
+  }
+
+  if (!apiKey || apiKey.includes("YOUR_")) {
+    throw new Error("OpenWeatherMap weather tiles key is missing.");
+  }
+
+  return template.replace("%apiKey%", apiKey);
+}
+
+export function toggleLayer(layerName) {
+  if (activeLayers.has(layerName)) {
+    removeLayer(layerName);
     return false;
   }
 
-  // Очищение активных слоев перед выбором нового
-  [...activeLayers].forEach((layer) => {
-    removeLayer(layer);
-  });
+  const template = getTemplate(layerName);
 
-  const template = getTemplate(name);
-  if (!template) return false;
+  clearActiveTileLayer();
+  activeLayers.clear();
 
-  try {
-    const targetMap = window.map;
+  setActiveTileLayer(layerName, template);
+  activeLayers.add(layerName);
+  renderLegend(layerName);
 
-    if (!targetMap) {
-      console.error("Объект карты не найден в window.map");
-      return false;
-    }
-
-    const newLayer = new ymaps.Layer(template, {
-      projection: ymaps.projection.sphericalMercator,
-      zIndex: 1000,
-      transparent: true,
-      opacity: 0.3,
-    });
-
-    if (!window.weatherLayers) window.weatherLayers = {};
-    window.weatherLayers[name] = newLayer;
-
-    // Наложение слоя поверх основной карты
-    targetMap.layers.add(newLayer);
-
-    activeLayers.add(name);
-    renderLegend(name);
-    return true;
-  } catch (e) {
-    console.error("Ошибка при добавлении слоя:", e);
-    return false;
-  }
+  return true;
 }
 
-export function removeLayer(name) {
-  if (window.weatherLayers && window.weatherLayers[name] && window.map) {
-    window.map.layers.remove(window.weatherLayers[name]);
-    delete window.weatherLayers[name];
+export function removeLayer(layerName) {
+  if (!activeLayers.has(layerName)) {
+    return;
   }
-  activeLayers.delete(name);
+
+  clearActiveTileLayer();
+  activeLayers.delete(layerName);
   removeLegend();
 }
 
-// Отрисовка визуальной шкалы (легенды)
-function renderLegend(type) {
+function renderLegend(layerName) {
   let legend = document.getElementById("weather-legend");
 
   if (!legend) {
     legend = document.createElement("div");
     legend.id = "weather-legend";
     legend.className = "weather-legend";
-    document.querySelector(".map-stage").appendChild(legend);
+    document.querySelector(".map-stage").append(legend);
   }
 
   const titles = {
-    temperature: "Temperature (°C)",
-    wind: "wind speed (m/s)",
+    temperature: "Temperature (deg C)",
+    wind: "Wind speed (m/s)",
   };
 
-  const scales = { temperature: "temp-scale", wind: "wind-scale" };
+  const scales = {
+    temperature: "temp-scale",
+    wind: "wind-scale",
+  };
 
   const labels = {
     temperature:
-      "<span>-40</span><span>-20</span><span>0</span><span>+20</span><span>+40</span>",
-    wind: "<span>0</span><span>2</span><span>10</span><span>20</span><span>60</span>",
+      "<span>-40</span><span>-20</span><span>0</span><span>20</span><span>40+</span>",
+    wind: "<span>0</span><span>2</span><span>10</span><span>20</span><span>60+</span>",
   };
 
   legend.innerHTML = `
-    <div class="legend-title">${titles[type]}</div>
-    <div class="legend-scale ${scales[type]}"></div>
-    <div class="legend-labels">${labels[type]}</div>
+    <div class="legend-title">${titles[layerName]}</div>
+    <div class="legend-scale ${scales[layerName]}"></div>
+    <div class="legend-labels">${labels[layerName]}</div>
   `;
-
-  legend.style.display = "block";
+  legend.hidden = false;
 }
 
-// Скрытие шкалы
 function removeLegend() {
   const legend = document.getElementById("weather-legend");
-  if (legend && activeLayers.size === 0) {
-    legend.style.display = "none";
+
+  if (legend) {
+    legend.hidden = true;
   }
 }
 

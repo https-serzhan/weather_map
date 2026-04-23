@@ -18,6 +18,14 @@ export function loadYandexMaps(apiKey) {
   );
 
   if (existingScript) {
+    if (existingScript.dataset.state === "ready" && window.ymaps) {
+      return Promise.resolve(window.ymaps);
+    }
+
+    if (existingScript.dataset.state === "error") {
+      return Promise.reject(new Error("Failed to load Yandex Maps JS API."));
+    }
+
     return new Promise((resolve, reject) => {
       existingScript.addEventListener("load", () => resolve(window.ymaps), {
         once: true,
@@ -36,7 +44,6 @@ export function loadYandexMaps(apiKey) {
     const script = document.createElement("script");
     const url = new URL(YANDEX_MAPS_API_URL);
 
-
     url.searchParams.set("apikey", apiKey);
     url.searchParams.set("lang", "en_US");
 
@@ -44,12 +51,23 @@ export function loadYandexMaps(apiKey) {
     script.async = true;
     script.defer = true;
     script.dataset.yandexMaps = "true";
-    script.addEventListener("load", () => resolve(window.ymaps), {
-      once: true,
-    });
+    script.dataset.state = "loading";
+    script.addEventListener(
+      "load",
+      () => {
+        script.dataset.state = "ready";
+        resolve(window.ymaps);
+      },
+      {
+        once: true,
+      },
+    );
     script.addEventListener(
       "error",
-      () => reject(new Error("Failed to load Yandex Maps JS API.")),
+      () => {
+        script.dataset.state = "error";
+        reject(new Error("Failed to load Yandex Maps JS API."));
+      },
       {
         once: true,
       },

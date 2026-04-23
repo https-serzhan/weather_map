@@ -10,61 +10,61 @@
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./css/base.css"  />
+    <link rel="stylesheet" href="./css/base.css" />
     <link rel="stylesheet" href="./css/map.css" />
     <link rel="stylesheet" href="./css/sidebar.css" />
     <link rel="stylesheet" href="./css/layers.css" />
     <link rel="stylesheet" href="./css/widgets.css" />
     <script type="module">
       import { CONFIG } from "./js/config.js";
-
-      function loadYandexMaps() {
-        return new Promise((resolve, reject) => {
-          const script = document.createElement("script");
-          const url = new URL("https://api-maps.yandex.ru/2.1/");
-
-          url.searchParams.set("apikey", CONFIG.yandexMapsApiKey);
-          url.searchParams.set("lang", "en_US");
-
-          script.src = url.toString();
-          script.type = "text/javascript";
-          script.addEventListener("load", resolve, { once: true });
-          script.addEventListener(
-            "error",
-            () => reject(new Error("Failed to load Yandex Maps JS API.")),
-            { once: true }
-          );
-
-          document.head.append(script);
-        });
-      }
+      import { loadYandexMaps } from "./js/utils/yandexLoader.js";
 
       try {
-        await loadYandexMaps();
+        await loadYandexMaps(CONFIG.yandexMapsApiKey);
         await import("./js/app.js");
       } catch (error) {
         console.error(error);
+        const locationCard = document.getElementById("location-card");
+
+        if (locationCard) {
+          locationCard.innerHTML = `
+            <p class="panel__label">Startup failed</p>
+            <h3>${error.message}</h3>
+            <p class="panel__muted">Check the configured Yandex Maps key and reload the page.</p>
+          `;
+        }
       }
     </script>
   </head>
   <body>
+    <noscript>
+      <div class="app-banner app-banner--error">
+        This application needs JavaScript enabled to load the map and API data.
+      </div>
+    </noscript>
     <div class="app-shell">
       <div class="map-stage">
         <div id="map" class="map-canvas" aria-label="Global weather map"></div>
-        <button id="sidebar-toggle" class="sidebar-toggle" type="button" aria-controls="sidebar">
-          Details
+        <button
+          id="sidebar-toggle"
+          class="sidebar-toggle"
+          type="button"
+          aria-controls="sidebar"
+          aria-label="Open weather details"
+        >
+          Open details
         </button>
         <section class="map-overlay">
           <p class="eyebrow">Global Weather Map</p>
           <h1>Tap any point on Earth and inspect live conditions.</h1>
           <p class="map-overlay__hint">
             Temperature and wind layers use OpenWeatherMap tiles. Current conditions come from
-            Open-Meteo.
+            OpenWeatherMap current weather data.
           </p>
         </section>
       </div>
 
-      <aside id="sidebar" class="sidebar sidebar--open">
+      <aside id="sidebar" class="sidebar sidebar--open" aria-label="Weather details sidebar">
         <div class="sidebar__glass"></div>
         <div class="sidebar__content">
           <header class="sidebar__header">
@@ -77,7 +77,7 @@
             </button>
           </header>
 
-          <section id="location-card" class="panel weather-card">
+          <section id="location-card" class="panel weather-card" aria-live="polite">
             <p class="panel__label">No location selected</p>
             <h3>Click the map to load weather data</h3>
             <p class="panel__muted">Coordinates and resolved place details will appear here.</p>
@@ -103,7 +103,14 @@
             <form id="currency-form" class="currency-widget">
               <label>
                 Amount
-                <input id="currency-amount" type="number" min="0" step="0.01" value="100" />
+                <input
+                  id="currency-amount"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  inputmode="decimal"
+                  value="100"
+                />
               </label>
               <div class="currency-widget__row">
                 <label>
@@ -117,7 +124,9 @@
               </div>
               <button class="button-primary" type="submit">Convert</button>
             </form>
-            <p id="currency-result" class="result-box">Enter values and convert.</p>
+            <p id="currency-result" class="result-box" role="status" aria-live="polite">
+              Enter values and convert.
+            </p>
           </section>
         </div>
       </aside>

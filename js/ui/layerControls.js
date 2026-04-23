@@ -39,6 +39,9 @@ function syncLayerControls(container) {
   const active = new Set(getActiveLayerNames());
 
   container.querySelectorAll(".layer-button").forEach((button) => {
-    button.classList.toggle("is-active", active.has(button.dataset.layer));
+    const isActive = active.has(button.dataset.layer);
+
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
   });
 }

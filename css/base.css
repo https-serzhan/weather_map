@@ -39,6 +39,24 @@ body {
     linear-gradient(135deg, #04111b 0%, #061a27 45%, #020a10 100%);
 }
 
+.app-banner {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  z-index: 100;
+  max-width: min(92vw, 720px);
+  padding: 14px 18px;
+  border-radius: 16px;
+  transform: translateX(-50%);
+  box-shadow: var(--shadow);
+}
+
+.app-banner--error {
+  border: 1px solid rgba(255, 142, 125, 0.35);
+  background: rgba(77, 20, 12, 0.92);
+  color: var(--text);
+}
+
 button,
 input,
 select {
@@ -125,6 +143,16 @@ button {
   transform: translateY(-1px);
   background: rgba(13, 42, 61, 0.94);
   border-color: rgba(118, 240, 211, 0.5);
+}
+
+.button-primary:focus-visible,
+.icon-button:focus-visible,
+.layer-button:focus-visible,
+.sidebar-toggle:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid rgba(118, 240, 211, 0.95);
+  outline-offset: 2px;
 }
 
 .button-primary {

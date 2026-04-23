@@ -1,6 +1,30 @@
+import { CONFIG } from "../config.js";
+import { createEmitter } from "../utils/events.js";
+
+const mapEvents = createEmitter();
+
 let map = null;
 let currentMarker = null;
-const tileLayers = new Map();
+let activeWeatherLayer = null;
+let activeWeatherLayerName = null;
+
+function getLatitudeBounds() {
+  const fallbackBounds = [-70, 70];
+  const configuredBounds = CONFIG.worldBounds;
+
+  if (!Array.isArray(configuredBounds) || configuredBounds.length < 2) {
+    return fallbackBounds;
+  }
+
+  const minLat = configuredBounds[0]?.[0];
+  const maxLat = configuredBounds[1]?.[0];
+
+  if (typeof minLat !== "number" || typeof maxLat !== "number") {
+    return fallbackBounds;
+  }
+
+  return [minLat, maxLat];
+}
 
 function assertYandexMaps() {
   if (!window.ymaps) {
@@ -14,28 +38,48 @@ function ensureMapReady() {
   }
 }
 
-function createLayerFromTemplate(template) {
-  return new window.ymaps.Layer(template, {
-    tileTransparent: true,
-    zIndex: 320,
+function emitLocationSelected(coords) {
+  mapEvents.emit("location:selected", {
+    lat: coords[0],
+    lon: coords[1],
   });
 }
 
-function notifyLocationSelected(coords) {
-  if (typeof window.onLocationSelected === "function") {
-    window.onLocationSelected({
-      lat: coords[0],
-      lon: coords[1],
-    });
-  }
+function handleMapClick(event) {
+  const coords = event.get("coords");
+
+  addMarker(coords[0], coords[1]);
+  emitLocationSelected(coords);
 }
 
-function handleMapClick(e) {
-  const coords = e.get("coords");
+function handleBoundsChange() {
+  if (!map) {
+    return;
+  }
 
-  console.log("Map click:", coords);
-  addMarker(coords[0], coords[1]);
-  notifyLocationSelected(coords);
+  const center = map.getCenter();
+
+  if (!Array.isArray(center) || center.length < 2) {
+    return;
+  }
+
+  const [minLat, maxLat] = getLatitudeBounds();
+  let lat = center[0];
+  const lon = center[1];
+
+  if (lat < minLat) {
+    lat = minLat;
+  }
+
+  if (lat > maxLat) {
+    lat = maxLat;
+  }
+
+  if (lat !== center[0]) {
+    map.setCenter([lat, lon], map.getZoom(), {
+      duration: 0,
+    });
+  }
 }
 
 function createMap(containerId = "map") {
@@ -52,22 +96,19 @@ function createMap(containerId = "map") {
   map = new window.ymaps.Map(
     containerId,
     {
-      center: [20, 0],
-      zoom: 2,
+      center: CONFIG.defaultView.center,
+      zoom: CONFIG.defaultView.zoom,
       controls: ["zoomControl"],
     },
     {
       suppressMapOpenBlock: true,
       maxZoom: 15,
-      minZoom: 3,
+      minZoom: CONFIG.defaultView.zoom,
     },
   );
 
-  map.events.add("click", function (e) {
-    handleMapClick(e);
-  });
-
-  window.map = map;
+  map.events.add("click", handleMapClick);
+  map.events.add("boundschange", handleBoundsChange);
 
   return map;
 }
@@ -80,7 +121,7 @@ export function initMap(containerId = "map") {
   }
 
   return new Promise((resolve) => {
-    window.ymaps.ready(function () {
+    window.ymaps.ready(() => {
       resolve(createMap(containerId));
     });
   });
@@ -95,58 +136,54 @@ export function addMarker(lat, lon) {
     map.geoObjects.remove(currentMarker);
   }
 
-  currentMarker = new window.ymaps.Placemark(coords);
+  currentMarker = new window.ymaps.Placemark(
+    coords,
+    {},
+    {
+      preset: "islands#nightDotIcon",
+    },
+  );
+
   map.geoObjects.add(currentMarker);
 }
 
 export function onLocationSelected(callback) {
-  window.onLocationSelected = callback;
+  return mapEvents.on("location:selected", callback);
 }
 
-export function addTileLayer(layerName, template) {
+export function setActiveTileLayer(layerName, template) {
   ensureMapReady();
 
-  if (tileLayers.has(layerName)) {
-    map.setType(tileLayers.get(layerName));
+  if (activeWeatherLayerName === layerName) {
     return;
   }
 
-  const layer = createLayerFromTemplate(template);
-  const mapTypeName = `custom#${layerName}`;
+  clearActiveTileLayer();
 
-  window.ymaps.layer.storage.add(mapTypeName, function () {
-    return layer;
+  activeWeatherLayer = new window.ymaps.Layer(template, {
+    projection: window.ymaps.projection.sphericalMercator,
+    zIndex: 1000,
+    transparent: true,
+    tileTransparent: true,
+    opacity: CONFIG.weatherTileOpacity,
   });
-  window.ymaps.mapType.storage.add(
-    mapTypeName,
-    new window.ymaps.MapType(mapTypeName, [layer, "yandex#map"]),
-  );
 
-  map.setType(mapTypeName);
-  tileLayers.set(layerName, mapTypeName);
+  map.layers.add(activeWeatherLayer);
+  activeWeatherLayerName = layerName;
 }
 
-export function removeTileLayer(layerName) {
-  ensureMapReady();
-
-  if (!tileLayers.has(layerName)) {
+export function clearActiveTileLayer() {
+  if (!map || !activeWeatherLayer) {
+    activeWeatherLayer = null;
+    activeWeatherLayerName = null;
     return;
   }
 
-  tileLayers.delete(layerName);
-  map.setType("yandex#map");
+  map.layers.remove(activeWeatherLayer);
+  activeWeatherLayer = null;
+  activeWeatherLayerName = null;
 }
 
-export function getMapInstance() {
-  return map;
-}
-
-window.MapModule = {
-  initMap,
-};
-
-if (window.ymaps) {
-  window.ymaps.ready(function () {
-    createMap("map");
-  });
+export function getActiveTileLayerName() {
+  return activeWeatherLayerName;
 }
