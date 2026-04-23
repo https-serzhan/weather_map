@@ -4,6 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Global Interactive Weather Map</title>
+    <script>
+      try {
+        if (window.localStorage.getItem("weather-map:intro-overlay-dismissed") === "true") {
+          document.documentElement.dataset.mapOverlayDismissed = "true";
+        }
+      } catch (error) {
+        console.warn("Unable to restore intro overlay state.", error);
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -54,7 +63,7 @@
         >
           Open details
         </button>
-        <section class="map-overlay">
+        <section id="map-overlay" class="map-overlay">
           <p class="eyebrow">Global Weather Map</p>
           <h1>Tap any point on Earth and inspect live conditions.</h1>
           <p class="map-overlay__hint">

@@ -42,6 +42,10 @@ body {
   pointer-events: none;
 }
 
+html[data-map-overlay-dismissed="true"] .map-overlay {
+  display: none;
+}
+
 .map-overlay h1 {
   margin: 0 0 12px;
   font-size: clamp(2rem, 4vw, 3.75rem);

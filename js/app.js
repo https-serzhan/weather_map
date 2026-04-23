@@ -14,6 +14,46 @@ import {
 import { formatCoordinate } from "./utils/format.js";
 
 let latestSelectionRequestId = 0;
+const MAP_OVERLAY_STORAGE_KEY = "weather-map:intro-overlay-dismissed";
+
+function dismissMapOverlay() {
+  const overlay = document.getElementById("map-overlay");
+
+  if (!overlay || overlay.hidden) {
+    return;
+  }
+
+  overlay.hidden = true;
+  document.documentElement.dataset.mapOverlayDismissed = "true";
+
+  try {
+    window.localStorage.setItem(MAP_OVERLAY_STORAGE_KEY, "true");
+  } catch (error) {
+    console.warn("Unable to persist intro overlay state.", error);
+  }
+}
+
+function initializeMapOverlay() {
+  let isDismissed = false;
+
+  try {
+    isDismissed = window.localStorage.getItem(MAP_OVERLAY_STORAGE_KEY) === "true";
+  } catch (error) {
+    console.warn("Unable to read intro overlay state.", error);
+  }
+
+  if (!isDismissed) {
+    return;
+  }
+
+  const overlay = document.getElementById("map-overlay");
+
+  if (overlay) {
+    overlay.hidden = true;
+  }
+
+  document.documentElement.dataset.mapOverlayDismissed = "true";
+}
 
 function bindSidebarControls() {
   const sidebarToggle = document.getElementById("sidebar-toggle");
@@ -56,6 +96,7 @@ async function inspectLocation(lat, lon) {
 }
 
 async function bootstrap() {
+  initializeMapOverlay();
   initializeSidebarState();
   bindSidebarControls();
   initCurrencyWidget();
@@ -72,6 +113,7 @@ async function bootstrap() {
   }
 
   onLocationSelected(({ lat, lon }) => {
+    dismissMapOverlay();
     void inspectLocation(lat, lon);
   });
 }
