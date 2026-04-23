@@ -25,6 +25,7 @@ body {
 body {
   font-family: "Space Grotesk", sans-serif;
   color: var(--text);
+  line-height: 1.5;
   background:
     radial-gradient(
       circle at top left,
@@ -37,6 +38,7 @@ body {
       transparent 35%
     ),
     linear-gradient(135deg, #04111b 0%, #061a27 45%, #020a10 100%);
+  overflow: hidden;
 }
 
 .app-banner {
@@ -65,6 +67,7 @@ select {
 
 button {
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 .app-shell {
@@ -83,7 +86,7 @@ button {
 
 .panel {
   position: relative;
-  padding: 20px;
+  padding: clamp(16px, 2vw, 20px);
   border: 1px solid var(--panel-border);
   border-radius: 22px;
   background: linear-gradient(
@@ -175,4 +178,39 @@ select:focus-visible {
   border-radius: 16px;
   background: rgba(1, 11, 18, 0.56);
   color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  .app-banner {
+    top: max(14px, env(safe-area-inset-top));
+    padding: 12px 14px;
+    border-radius: 14px;
+  }
+
+  .panel {
+    border-radius: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .eyebrow,
+  .panel__label {
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+  }
+
+  .icon-button {
+    width: 44px;
+    height: 44px;
+  }
+
+  .button-primary,
+  .icon-button,
+  .layer-button,
+  .sidebar-toggle,
+  input,
+  select {
+    font-size: 16px;
+  }
 }

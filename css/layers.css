@@ -12,7 +12,7 @@
   border-radius: 8px;
   color: #fff;
   font-family: "Space Grotesk", sans-serif;
-  width: 250px;
+  width: min(250px, calc(100vw - 48px));
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   pointer-events: none;
 }
@@ -66,4 +66,30 @@
   font-size: 0.75rem;
   font-family: "IBM Plex Mono", monospace;
   color: #d0d0d5;
+}
+
+@media (max-width: 900px) {
+  .weather-legend {
+    left: 16px;
+    bottom: max(16px, env(safe-area-inset-bottom));
+    width: min(250px, calc(100vw - 32px));
+  }
+}
+
+@media (max-width: 640px) {
+  .weather-legend {
+    right: 12px;
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    left: 12px;
+    width: auto;
+    padding: 10px 12px;
+  }
+
+  .legend-title {
+    font-size: 0.8rem;
+  }
+
+  .legend-labels {
+    font-size: 0.68rem;
+  }
 }
